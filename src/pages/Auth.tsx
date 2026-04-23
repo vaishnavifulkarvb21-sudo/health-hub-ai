@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import logo from "/medpulse-logo.png";
 
 export default function AuthPage() {
   const { user, signIn, signUp, loading } = useAuth();
@@ -47,12 +48,14 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-subtle">
-      <div className="hidden lg:flex flex-col justify-between p-10 bg-gradient-primary text-primary-foreground">
-        <div className="flex items-center gap-2">
-          <div className="h-10 w-10 rounded-xl bg-white/15 flex items-center justify-center">
-            <Activity className="h-6 w-6" />
+      <div className="hidden lg:flex flex-col justify-between p-10 bg-gradient-primary text-primary-foreground relative overflow-hidden">
+        <div className="absolute -top-20 -right-20 h-72 w-72 rounded-full bg-white/10 blur-3xl animate-float" />
+        <div className="absolute bottom-10 -left-10 h-64 w-64 rounded-full bg-white/10 blur-3xl animate-float" style={{ animationDelay: "1s" }} />
+        <div className="flex items-center gap-3 relative z-10 animate-slide-in-left">
+          <div className="h-12 w-12 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur p-1.5 animate-heartbeat">
+            <img src={logo} alt="MedPulse AI logo" width={48} height={48} className="h-full w-full object-contain brightness-0 invert" />
           </div>
-          <div className="text-lg font-semibold">MedPulse AI</div>
+          <div className="text-xl font-semibold">MedPulse AI</div>
         </div>
         <div className="space-y-4 max-w-md">
           <h1 className="text-4xl font-bold leading-tight">AI-powered Smart Healthcare Management</h1>
@@ -66,10 +69,10 @@ export default function AuthPage() {
       <div className="flex items-center justify-center p-6">
         <Card className="w-full max-w-md p-8 shadow-elegant border-border/60 animate-scale-in">
           <div className="lg:hidden flex items-center gap-2 mb-6">
-            <div className="h-9 w-9 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <Activity className="h-5 w-5 text-primary-foreground" />
+            <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center p-1.5 animate-pulse-glow">
+              <img src={logo} alt="MedPulse AI logo" width={40} height={40} className="h-full w-full object-contain brightness-0 invert" />
             </div>
-            <div className="font-semibold">MedPulse AI</div>
+            <div className="font-semibold bg-gradient-primary bg-clip-text text-transparent">MedPulse AI</div>
           </div>
           <h2 className="text-2xl font-bold mb-1">Welcome</h2>
           <p className="text-sm text-muted-foreground mb-6">Sign in or create an account to continue</p>
