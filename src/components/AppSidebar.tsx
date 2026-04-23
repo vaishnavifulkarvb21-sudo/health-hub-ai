@@ -1,6 +1,7 @@
-import { LayoutDashboard, Users, Stethoscope, FlaskConical, Receipt, History, Bot, Activity } from "lucide-react";
+import { LayoutDashboard, Users, Stethoscope, FlaskConical, Receipt, History, Bot } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import logo from "/medpulse-logo.png";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -21,12 +22,12 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent className="bg-sidebar">
         <div className="flex items-center gap-2 px-4 py-5 border-b border-sidebar-border">
-          <div className="h-9 w-9 rounded-lg bg-gradient-primary flex items-center justify-center shadow-glow">
-            <Activity className="h-5 w-5 text-primary-foreground" />
+          <div className="h-10 w-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow animate-pulse-glow p-1.5">
+            <img src={logo} alt="MedPulse AI logo" width={40} height={40} className="h-full w-full object-contain brightness-0 invert" />
           </div>
           {!collapsed && (
-            <div className="leading-tight">
-              <div className="font-semibold text-sm">MedPulse AI</div>
+            <div className="leading-tight animate-slide-in-right">
+              <div className="font-semibold text-sm bg-gradient-primary bg-clip-text text-transparent">MedPulse AI</div>
               <div className="text-xs text-muted-foreground">Healthcare System</div>
             </div>
           )}
