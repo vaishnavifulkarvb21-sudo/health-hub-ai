@@ -36,10 +36,20 @@ export default function Reports() {
     setBusy(true);
     const ext = form.file.name.split(".").pop();
     const path = `${form.patient_id}/${Date.now()}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("lab-reports").upload(path, form.file);
-    if (upErr) { setBusy(false); return toast.error(upErr.message); }
+    const [{ data: auth }, { error: upErr }] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase.storage.from("lab-reports").upload(path, form.file),
+    ]);
+    if (upErr) {
+      setBusy(false);
+      return toast.error(upErr.message);
+    }
     const { error } = await supabase.from("lab_reports").insert({
-      patient_id: form.patient_id, title: form.title, file_path: path, file_type: form.file.type,
+      patient_id: form.patient_id,
+      title: form.title,
+      file_path: path,
+      file_type: form.file.type,
+      created_by: auth.user?.id ?? null,
     });
     setBusy(false);
     if (error) return toast.error(error.message);
@@ -54,10 +64,15 @@ export default function Reports() {
 
   const remove = async (r: Report) => {
     if (!confirm("Delete this report?")) return;
-    await supabase.storage.from("lab-reports").remove([r.file_path]);
-    const { error } = await supabase.from("lab_reports").delete().eq("id", r.id);
+    const { data, error } = await supabase.from("lab_reports").delete().eq("id", r.id).select("id");
     if (error) return toast.error(error.message);
-    toast.success("Deleted"); load();
+    if (!data?.length) return toast.error("You do not have permission to delete this report.");
+
+    const { error: storageError } = await supabase.storage.from("lab-reports").remove([r.file_path]);
+    if (storageError) toast.error("Report record deleted, but file cleanup failed.");
+    else toast.success("Deleted");
+
+    load();
   };
 
   const filtered = reports.filter((r) => {
