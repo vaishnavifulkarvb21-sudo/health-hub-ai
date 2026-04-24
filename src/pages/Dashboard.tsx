@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Users, Receipt, Stethoscope, TrendingUp, Sparkles, Loader2, Activity, AlertCircle, Calendar, Award } from "lucide-react";
+import { Users, Receipt, Stethoscope, TrendingUp, Sparkles, Loader2, Activity, AlertCircle, Calendar, Award, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Area, AreaChart } from "recharts";
-import { format, subDays, formatDistanceToNow } from "date-fns";
+import { format, subDays, formatDistanceToNow, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { detectOutbreak } from "@/lib/symptomRules";
+import { Link } from "react-router-dom";
 
 interface Stats {
   totalPatients: number;
@@ -46,14 +48,17 @@ export default function Dashboard() {
   const [recentActivity, setRecentActivity] = useState<{ kind: string; label: string; at: string }[]>([]);
   const [insight, setInsight] = useState<string>("");
   const [loadingInsight, setLoadingInsight] = useState(false);
+  const [upcoming, setUpcoming] = useState<{ id: string; patient: string; when: string; status: string }[]>([]);
+  const [outbreak, setOutbreak] = useState<string | null>(null);
 
   const loadData = async () => {
     const today = new Date().toISOString().slice(0, 10);
-    const [{ count: pc }, { data: pays }, { data: visits }, { data: patients }] = await Promise.all([
+    const [{ count: pc }, { data: pays }, { data: visits }, { data: patients }, { data: appts }] = await Promise.all([
       supabase.from("patients").select("*", { count: "exact", head: true }),
       supabase.from("payments").select("*"),
       supabase.from("visits").select("*"),
       supabase.from("patients").select("id, name, gender, patient_code, created_at"),
+      supabase.from("appointments").select("id, patient_id, scheduled_at, status").eq("status", "scheduled").gte("scheduled_at", new Date().toISOString()).order("scheduled_at").limit(5),
     ]);
 
     const totalRevenue = (pays || []).filter((p) => p.status === "paid").reduce((s, p) => s + Number(p.amount), 0);
@@ -107,6 +112,21 @@ export default function Dashboard() {
     });
     activity.sort((a, b) => +new Date(b.at) - +new Date(a.at));
     setRecentActivity(activity.slice(0, 6));
+
+    // Upcoming appointments widget
+    const patMap = new Map((patients || []).map((p) => [p.id, p.name] as const));
+    setUpcoming((appts || []).map((a) => ({
+      id: a.id,
+      patient: patMap.get(a.patient_id) || "Patient",
+      when: a.scheduled_at,
+      status: a.status,
+    })));
+
+    // Outbreak detection from recent visit symptoms
+    const recentSymptoms = (visits || [])
+      .filter((v) => v.visit_date >= format(subDays(new Date(), 7), "yyyy-MM-dd"))
+      .map((v) => v.symptoms || "");
+    setOutbreak(detectOutbreak(recentSymptoms));
   };
 
   useEffect(() => {
@@ -169,6 +189,39 @@ export default function Dashboard() {
         </h1>
         <p className="text-muted-foreground text-sm">Real-time overview of your healthcare operations</p>
       </div>
+
+      {outbreak && (
+        <Card className="p-4 border-warning/40 bg-warning/5 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-warning" />
+            <div className="text-sm font-medium">{outbreak}</div>
+          </div>
+        </Card>
+      )}
+
+      {upcoming.length > 0 && (
+        <Card className="p-5 bg-card border-border/60 animate-fade-in">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" /> Upcoming appointments</h3>
+            <Link to="/appointments" className="text-xs text-primary hover:underline">View all</Link>
+          </div>
+          <ul className="divide-y divide-border">
+            {upcoming.map((u, i) => (
+              <li
+                key={u.id}
+                className="py-2.5 flex items-center justify-between gap-3 animate-slide-in-right"
+                style={{ animationDelay: `${i * 60}ms`, animationFillMode: "backwards" }}
+              >
+                <div>
+                  <div className="text-sm font-medium">{u.patient}</div>
+                  <div className="text-xs text-muted-foreground">{format(parseISO(u.when), "PPp")}</div>
+                </div>
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">{u.status}</Badge>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPI delay={0} label="Total Patients" value={<AnimatedNumber value={stats.totalPatients} />} icon={Users} accent="bg-primary/10 text-primary" />

@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, Download, Trash2, FileText, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { logActivity } from "@/lib/activityLog";
+import { exportCsv } from "@/lib/exportCsv";
 
 interface Report { id: string; patient_id: string; title: string; file_path: string; file_type: string | null; created_at: string; }
 interface Patient { id: string; name: string; patient_code: string; }
@@ -53,7 +55,9 @@ export default function Reports() {
     });
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Report uploaded"); setOpen(false); setForm({ patient_id: "", title: "", file: null }); load();
+    toast.success("Report uploaded");
+    logActivity("created", "lab_report", undefined, form.title);
+    setOpen(false); setForm({ patient_id: "", title: "", file: null }); load();
   };
 
   const download = async (path: string) => {
@@ -71,8 +75,19 @@ export default function Reports() {
     const { error: storageError } = await supabase.storage.from("lab-reports").remove([r.file_path]);
     if (storageError) toast.error("Report record deleted, but file cleanup failed.");
     else toast.success("Deleted");
+    logActivity("deleted", "lab_report", r.id, r.title);
 
     load();
+  };
+
+  const handleExport = () => {
+    exportCsv("lab_reports", reports.map((r) => ({
+      title: r.title,
+      patient: pname(r.patient_id),
+      file_type: r.file_type,
+      uploaded_on: new Date(r.created_at).toLocaleDateString(),
+    })));
+    toast.success("Reports exported");
   };
 
   const filtered = reports.filter((r) => {
@@ -88,6 +103,9 @@ export default function Reports() {
           <p className="text-muted-foreground text-sm">{reports.length} reports uploaded</p>
         </div>
         <Button onClick={() => setOpen(true)} className="bg-gradient-primary"><Upload className="h-4 w-4 mr-2" /> Upload report</Button>
+      </div>
+      <div className="flex justify-end -mt-2">
+        <Button variant="outline" size="sm" onClick={handleExport}><Download className="h-4 w-4 mr-2" /> Export CSV</Button>
       </div>
 
       <Card className="p-4">

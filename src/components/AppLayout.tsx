@@ -1,19 +1,24 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, LogOut, Search } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
+import { useIdleLogout } from "@/hooks/useIdleLogout";
 import { Badge } from "@/components/ui/badge";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   const { theme, toggle } = useTheme();
   const { user, role, loading, signOut } = useAuth();
+  const { t } = useTranslation();
+  useIdleLogout();
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>;
+    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("common.loading")}</div>;
   }
   if (!user) return <Navigate to="/auth" replace />;
 
@@ -26,17 +31,18 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
             <div className="flex items-center gap-3">
               <SidebarTrigger />
               <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
-                <Search className="h-4 w-4" /> Quick search via the search box on each page
+                <Search className="h-4 w-4" /> {t("header.quickSearch")}
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="hidden sm:inline-flex">
-                {role === "admin" ? "Admin" : "Doctor / Staff"}
+                {role === "admin" ? t("header.admin") : t("header.staff")}
               </Badge>
-              <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
+              <LanguageSwitcher />
+              <Button variant="ghost" size="icon" onClick={toggle} aria-label={t("header.toggleTheme")}>
                 {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
-              <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out">
+              <Button variant="ghost" size="icon" onClick={signOut} aria-label={t("header.signOut")}>
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>

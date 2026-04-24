@@ -1,22 +1,31 @@
-import { LayoutDashboard, Users, Stethoscope, FlaskConical, Receipt, History, Bot } from "lucide-react";
+import { LayoutDashboard, Users, Stethoscope, FlaskConical, Receipt, History, Bot, Calendar, UserCog, ScrollText } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/useAuth";
 import logo from "/medpulse-logo.png";
-
-const items = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Patients", url: "/patients", icon: Users },
-  { title: "Visits", url: "/visits", icon: Stethoscope },
-  { title: "Lab Reports", url: "/reports", icon: FlaskConical },
-  { title: "Payments", url: "/payments", icon: Receipt },
-  { title: "Medical History", url: "/history", icon: History },
-  { title: "AI Assistant", url: "/ai", icon: Bot },
-];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
+  const { t } = useTranslation();
+  const { role } = useAuth();
+
+  const items = [
+    { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard },
+    { title: t("nav.patients"), url: "/patients", icon: Users },
+    { title: t("nav.appointments"), url: "/appointments", icon: Calendar },
+    { title: t("nav.visits"), url: "/visits", icon: Stethoscope },
+    { title: t("nav.doctors"), url: "/doctors", icon: UserCog },
+    { title: t("nav.reports"), url: "/reports", icon: FlaskConical },
+    { title: t("nav.payments"), url: "/payments", icon: Receipt },
+    { title: t("nav.history"), url: "/history", icon: History },
+    { title: t("nav.ai"), url: "/ai", icon: Bot },
+  ];
+  if (role === "admin") {
+    items.push({ title: t("nav.activity"), url: "/activity", icon: ScrollText });
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -33,13 +42,13 @@ export function AppSidebar() {
           )}
         </div>
         <SidebarGroup>
-          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("nav.workspace")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
                 const active = pathname === item.url || (item.url !== "/dashboard" && pathname.startsWith(item.url));
                 return (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton asChild isActive={active}>
                       <NavLink to={item.url} end className="transition-smooth">
                         <item.icon className="h-4 w-4" />

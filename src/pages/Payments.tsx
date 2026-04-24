@@ -7,12 +7,15 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Search, CheckCircle2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, CheckCircle2, FileDown, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { logActivity } from "@/lib/activityLog";
+import { exportCsv } from "@/lib/exportCsv";
+import { downloadInvoicePdf } from "@/lib/invoicePdf";
 
 interface Payment { id: string; patient_id: string; amount: number; description: string | null; status: string; bill_date: string; }
-interface Patient { id: string; name: string; patient_code: string; }
+interface Patient { id: string; name: string; patient_code: string; phone: string | null; address: string | null; }
 
 const empty = { patient_id: "", amount: 0, description: "", status: "unpaid", bill_date: new Date().toISOString().slice(0, 10) };
 
@@ -28,32 +31,57 @@ export default function Payments() {
   const load = async () => {
     const [{ data: p }, { data: ps }] = await Promise.all([
       supabase.from("payments").select("*").order("bill_date", { ascending: false }),
-      supabase.from("patients").select("id, name, patient_code").order("name"),
+      supabase.from("patients").select("id, name, patient_code, phone, address").order("name"),
     ]);
     setItems(p || []);
     setPatients(ps || []);
   };
   useEffect(() => { load(); }, []);
-  const pname = (id: string) => patients.find((x) => x.id === id)?.name || "—";
+  const findPatient = (id: string) => patients.find((x) => x.id === id);
+  const pname = (id: string) => findPatient(id)?.name || "—";
 
   const save = async () => {
     if (!form.patient_id || !form.amount) return toast.error("Patient & amount required");
-    const { error } = editing
-      ? await supabase.from("payments").update(form).eq("id", editing.id)
-      : await supabase.from("payments").insert(form);
-    if (error) return toast.error(error.message);
-    toast.success(editing ? "Updated" : "Bill created"); setOpen(false); load();
+    if (editing) {
+      const { error } = await supabase.from("payments").update(form).eq("id", editing.id);
+      if (error) return toast.error(error.message);
+      toast.success("Updated");
+      logActivity("updated", "payment", editing.id, `₹${form.amount}`);
+    } else {
+      const { data, error } = await supabase.from("payments").insert(form).select("id").single();
+      if (error) return toast.error(error.message);
+      toast.success("Bill created");
+      if (data) logActivity("created", "payment", data.id, `₹${form.amount} for ${pname(form.patient_id)}`);
+    }
+    setOpen(false); load();
   };
-  const remove = async (id: string) => {
+  const remove = async (p: Payment) => {
     if (!confirm("Delete this payment record?")) return;
-    const { error } = await supabase.from("payments").delete().eq("id", id);
+    const { error } = await supabase.from("payments").delete().eq("id", p.id);
     if (error) return toast.error(error.message);
-    toast.success("Deleted"); load();
+    toast.success("Deleted");
+    logActivity("deleted", "payment", p.id);
+    load();
   };
   const togglePaid = async (p: Payment) => {
-    const { error } = await supabase.from("payments").update({ status: p.status === "paid" ? "unpaid" : "paid" }).eq("id", p.id);
+    const newStatus = p.status === "paid" ? "unpaid" : "paid";
+    const { error } = await supabase.from("payments").update({ status: newStatus }).eq("id", p.id);
     if (error) return toast.error(error.message);
+    logActivity("updated", "payment", p.id, `marked ${newStatus}`);
     load();
+  };
+
+  const downloadInvoice = (p: Payment) => {
+    const pat = findPatient(p.patient_id);
+    if (!pat) return toast.error("Patient not found");
+    downloadInvoicePdf({
+      invoiceNumber: p.id.slice(0, 8).toUpperCase(),
+      date: p.bill_date,
+      patient: { name: pat.name, code: pat.patient_code, phone: pat.phone, address: pat.address },
+      lines: [{ description: p.description || "Medical services", amount: Number(p.amount) }],
+      status: p.status,
+    });
+    toast.success("Invoice downloaded");
   };
 
   const filtered = items.filter((p) => {
@@ -66,6 +94,17 @@ export default function Payments() {
   const totalPaid = items.filter((i) => i.status === "paid").reduce((s, i) => s + Number(i.amount), 0);
   const totalUnpaid = items.filter((i) => i.status === "unpaid").reduce((s, i) => s + Number(i.amount), 0);
 
+  const handleExport = () => {
+    exportCsv("payments", filtered.map((p) => ({
+      bill_date: p.bill_date,
+      patient: pname(p.patient_id),
+      description: p.description,
+      amount: p.amount,
+      status: p.status,
+    })));
+    toast.success("Payments exported");
+  };
+
   return (
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -73,9 +112,12 @@ export default function Payments() {
           <h1 className="text-2xl md:text-3xl font-bold">Payments & Billing</h1>
           <p className="text-muted-foreground text-sm">Paid: ₹{totalPaid.toLocaleString()} · Unpaid: ₹{totalUnpaid.toLocaleString()}</p>
         </div>
-        <Button onClick={() => { setEditing(null); setForm(empty); setOpen(true); }} className="bg-gradient-primary">
-          <Plus className="h-4 w-4 mr-2" /> New bill
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport}><Download className="h-4 w-4 mr-2" /> Export CSV</Button>
+          <Button onClick={() => { setEditing(null); setForm(empty); setOpen(true); }} className="bg-gradient-primary">
+            <Plus className="h-4 w-4 mr-2" /> New bill
+          </Button>
+        </div>
       </div>
 
       <Card className="p-4">
@@ -107,7 +149,7 @@ export default function Payments() {
             </TableHeader>
             <TableBody>
               {filtered.map((p) => (
-                <TableRow key={p.id}>
+                <TableRow key={p.id} className="hover:bg-accent/40 transition-smooth">
                   <TableCell>{p.bill_date}</TableCell>
                   <TableCell className="font-medium">{pname(p.patient_id)}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{p.description}</TableCell>
@@ -118,9 +160,10 @@ export default function Payments() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
+                    <Button variant="ghost" size="icon" onClick={() => downloadInvoice(p)} title="Download invoice"><FileDown className="h-4 w-4 text-primary" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => togglePaid(p)} title="Toggle paid"><CheckCircle2 className="h-4 w-4 text-success" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => { setEditing(p); setForm({ patient_id: p.patient_id, amount: Number(p.amount), description: p.description || "", status: p.status, bill_date: p.bill_date }); setOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => remove(p.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                   </TableCell>
                 </TableRow>
               ))}
