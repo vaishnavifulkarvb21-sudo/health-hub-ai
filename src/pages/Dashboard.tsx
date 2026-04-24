@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Users, Receipt, Stethoscope, TrendingUp, Sparkles, Loader2, Activity, AlertCircle, Calendar, Award } from "lucide-react";
+import { Users, Receipt, Stethoscope, TrendingUp, Sparkles, Loader2, Activity, AlertCircle, Calendar, Award, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Area, AreaChart } from "recharts";
-import { format, subDays, formatDistanceToNow } from "date-fns";
+import { format, subDays, formatDistanceToNow, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { detectOutbreak } from "@/lib/symptomRules";
+import { Link } from "react-router-dom";
 
 interface Stats {
   totalPatients: number;
@@ -46,14 +48,17 @@ export default function Dashboard() {
   const [recentActivity, setRecentActivity] = useState<{ kind: string; label: string; at: string }[]>([]);
   const [insight, setInsight] = useState<string>("");
   const [loadingInsight, setLoadingInsight] = useState(false);
+  const [upcoming, setUpcoming] = useState<{ id: string; patient: string; when: string; status: string }[]>([]);
+  const [outbreak, setOutbreak] = useState<string | null>(null);
 
   const loadData = async () => {
     const today = new Date().toISOString().slice(0, 10);
-    const [{ count: pc }, { data: pays }, { data: visits }, { data: patients }] = await Promise.all([
+    const [{ count: pc }, { data: pays }, { data: visits }, { data: patients }, { data: appts }] = await Promise.all([
       supabase.from("patients").select("*", { count: "exact", head: true }),
       supabase.from("payments").select("*"),
       supabase.from("visits").select("*"),
       supabase.from("patients").select("id, name, gender, patient_code, created_at"),
+      supabase.from("appointments").select("id, patient_id, scheduled_at, status").eq("status", "scheduled").gte("scheduled_at", new Date().toISOString()).order("scheduled_at").limit(5),
     ]);
 
     const totalRevenue = (pays || []).filter((p) => p.status === "paid").reduce((s, p) => s + Number(p.amount), 0);
@@ -107,6 +112,21 @@ export default function Dashboard() {
     });
     activity.sort((a, b) => +new Date(b.at) - +new Date(a.at));
     setRecentActivity(activity.slice(0, 6));
+
+    // Upcoming appointments widget
+    const patMap = new Map((patients || []).map((p) => [p.id, p.name] as const));
+    setUpcoming((appts || []).map((a) => ({
+      id: a.id,
+      patient: patMap.get(a.patient_id) || "Patient",
+      when: a.scheduled_at,
+      status: a.status,
+    })));
+
+    // Outbreak detection from recent visit symptoms
+    const recentSymptoms = (visits || [])
+      .filter((v) => v.visit_date >= format(subDays(new Date(), 7), "yyyy-MM-dd"))
+      .map((v) => v.symptoms || "");
+    setOutbreak(detectOutbreak(recentSymptoms));
   };
 
   useEffect(() => {
