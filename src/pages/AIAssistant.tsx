@@ -86,7 +86,7 @@ export default function AIAssistant() {
         <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
           <Sparkles className="h-6 w-6 text-primary" /> AI Assistant
         </h1>
-        <p className="text-muted-foreground text-sm">Powered by Lovable AI · Ask anything about the system</p>
+        <p className="text-muted-foreground text-sm">Powered by MedPulse AI · Ask anything about the system</p>
       </div>
 
       <Card className="flex flex-col h-[65vh]">
