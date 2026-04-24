@@ -51,8 +51,8 @@ export default function AuthPage() {
       <div className="hidden lg:flex flex-col justify-between p-10 bg-gradient-primary text-primary-foreground relative overflow-hidden">
         <div className="absolute -top-20 -right-20 h-72 w-72 rounded-full bg-white/10 blur-3xl animate-float" />
         <div className="absolute bottom-10 -left-10 h-64 w-64 rounded-full bg-white/10 blur-3xl animate-float" style={{ animationDelay: "1s" }} />
-        <div className="flex items-center gap-3 relative z-10 animate-slide-in-left">
-          <div className="h-12 w-12 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur p-1.5 animate-heartbeat">
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="h-12 w-12 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur p-1.5">
             <img src={logo} alt="MedPulse AI logo" width={48} height={48} className="h-full w-full object-contain brightness-0 invert" />
           </div>
           <div className="text-xl font-semibold">MedPulse AI</div>
@@ -69,7 +69,7 @@ export default function AuthPage() {
       <div className="flex items-center justify-center p-6">
         <Card className="w-full max-w-md p-8 shadow-elegant border-border/60 animate-scale-in">
           <div className="lg:hidden flex items-center gap-2 mb-6">
-            <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center p-1.5 animate-pulse-glow">
+            <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center p-1.5">
               <img src={logo} alt="MedPulse AI logo" width={40} height={40} className="h-full w-full object-contain brightness-0 invert" />
             </div>
             <div className="font-semibold bg-gradient-primary bg-clip-text text-transparent">MedPulse AI</div>
