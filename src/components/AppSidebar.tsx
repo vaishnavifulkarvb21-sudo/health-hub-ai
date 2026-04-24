@@ -22,12 +22,12 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent className="bg-sidebar">
         <div className="flex items-center gap-2 px-4 py-5 border-b border-sidebar-border">
-          <div className="h-10 w-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow p-1.5">
-            <img src={logo} alt="MedPulse AI logo" width={40} height={40} className="h-full w-full object-contain brightness-0 invert" />
+          <div className="h-10 w-10 rounded-xl flex items-center justify-center p-1.5">
+            <img src={logo} alt="MedPulse AI logo" width={40} height={40} className="h-full w-full object-contain" />
           </div>
           {!collapsed && (
             <div className="leading-tight">
-              <div className="font-semibold text-sm bg-gradient-primary bg-clip-text text-transparent">MedPulse AI</div>
+              <div className="font-semibold text-sm text-foreground">MedPulse AI</div>
               <div className="text-xs text-muted-foreground">Healthcare System</div>
             </div>
           )}
