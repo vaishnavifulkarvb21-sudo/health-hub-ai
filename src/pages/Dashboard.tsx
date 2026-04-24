@@ -190,6 +190,39 @@ export default function Dashboard() {
         <p className="text-muted-foreground text-sm">Real-time overview of your healthcare operations</p>
       </div>
 
+      {outbreak && (
+        <Card className="p-4 border-warning/40 bg-warning/5 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-warning" />
+            <div className="text-sm font-medium">{outbreak}</div>
+          </div>
+        </Card>
+      )}
+
+      {upcoming.length > 0 && (
+        <Card className="p-5 bg-card border-border/60 animate-fade-in">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" /> Upcoming appointments</h3>
+            <Link to="/appointments" className="text-xs text-primary hover:underline">View all</Link>
+          </div>
+          <ul className="divide-y divide-border">
+            {upcoming.map((u, i) => (
+              <li
+                key={u.id}
+                className="py-2.5 flex items-center justify-between gap-3 animate-slide-in-right"
+                style={{ animationDelay: `${i * 60}ms`, animationFillMode: "backwards" }}
+              >
+                <div>
+                  <div className="text-sm font-medium">{u.patient}</div>
+                  <div className="text-xs text-muted-foreground">{format(parseISO(u.when), "PPp")}</div>
+                </div>
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">{u.status}</Badge>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPI delay={0} label="Total Patients" value={<AnimatedNumber value={stats.totalPatients} />} icon={Users} accent="bg-primary/10 text-primary" />
         <KPI delay={80} label="Total Revenue" value={<AnimatedNumber value={stats.totalRevenue} prefix="₹" />} icon={TrendingUp} accent="bg-success/10 text-success" />
