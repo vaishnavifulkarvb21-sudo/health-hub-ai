@@ -78,8 +78,7 @@ export function downloadInvoicePdf(data: InvoiceData) {
     styles: { fontSize: 10 },
   });
 
-  // @ts-expect-error - lastAutoTable is added by autotable plugin
-  const finalY = (doc as any).lastAutoTable?.finalY ?? 100;
+  const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? 100;
 
   if (data.status) {
     doc.setFont("helvetica", "bold");
