@@ -1,6 +1,7 @@
-import { LayoutDashboard, Users, Stethoscope, FlaskConical, Receipt, History, Bot, Calendar, UserCog, ScrollText } from "lucide-react";
+import { LayoutDashboard, Users, Stethoscope, FlaskConical, Receipt, History, Bot, Calendar, UserCog, ScrollText, AlertTriangle } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import logo from "/medpulse-logo.png";
@@ -11,21 +12,21 @@ export function AppSidebar() {
   const { pathname } = useLocation();
   const { t } = useTranslation();
   const { role } = useAuth();
+  const perms = usePermissions();
 
   const items = [
-    { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard },
-    { title: t("nav.patients"), url: "/patients", icon: Users },
-    { title: t("nav.appointments"), url: "/appointments", icon: Calendar },
-    { title: t("nav.visits"), url: "/visits", icon: Stethoscope },
-    { title: t("nav.doctors"), url: "/doctors", icon: UserCog },
-    { title: t("nav.reports"), url: "/reports", icon: FlaskConical },
-    { title: t("nav.payments"), url: "/payments", icon: Receipt },
-    { title: t("nav.history"), url: "/history", icon: History },
-    { title: t("nav.ai"), url: "/ai", icon: Bot },
-  ];
-  if (role === "admin") {
-    items.push({ title: t("nav.activity"), url: "/activity", icon: ScrollText });
-  }
+    { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard, show: true },
+    { title: t("nav.patients"), url: "/patients", icon: Users, show: true },
+    { title: t("nav.appointments"), url: "/appointments", icon: Calendar, show: true },
+    { title: t("nav.visits"), url: "/visits", icon: Stethoscope, show: true },
+    { title: t("nav.doctors"), url: "/doctors", icon: UserCog, show: perms.canManageDoctors },
+    { title: t("nav.reports"), url: "/reports", icon: FlaskConical, show: true },
+    { title: t("nav.payments"), url: "/payments", icon: Receipt, show: !perms.isStaff },
+    { title: t("nav.history"), url: "/history", icon: History, show: true },
+    { title: t("nav.ai"), url: "/ai", icon: Bot, show: true },
+    { title: t("nav.emergency"), url: "/emergency", icon: AlertTriangle, show: perms.canHandleEmergency },
+    { title: t("nav.activity"), url: "/activity", icon: ScrollText, show: perms.canViewActivityLog },
+  ].filter((i) => i.show);
 
   return (
     <Sidebar collapsible="icon">
