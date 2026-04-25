@@ -9,6 +9,7 @@ import { AppLayout } from "@/components/AppLayout";
 import "@/i18n";
 import Index from "./pages/Index";
 import AuthPage from "./pages/Auth";
+import PatientAuth from "./pages/PatientAuth";
 import Dashboard from "./pages/Dashboard";
 import Patients from "./pages/Patients";
 import Visits from "./pages/Visits";
@@ -19,6 +20,12 @@ import AIAssistant from "./pages/AIAssistant";
 import Doctors from "./pages/Doctors";
 import Appointments from "./pages/Appointments";
 import ActivityLog from "./pages/ActivityLog";
+import EmergencyDashboard from "./pages/EmergencyDashboard";
+import { PatientLayout } from "./components/PatientLayout";
+import PatientHome from "./pages/portal/PatientHome";
+import BookAppointment from "./pages/portal/BookAppointment";
+import PatientReports from "./pages/portal/PatientReports";
+import PatientHistory from "./pages/portal/PatientHistory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +42,7 @@ const App = () => (
           <AuthProvider>
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/patient-auth" element={<PatientAuth />} />
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
               <Route path="/patients" element={<Protected><Patients /></Protected>} />
@@ -46,6 +54,11 @@ const App = () => (
               <Route path="/history" element={<Protected><History /></Protected>} />
               <Route path="/ai" element={<Protected><AIAssistant /></Protected>} />
               <Route path="/activity" element={<Protected><ActivityLog /></Protected>} />
+              <Route path="/emergency" element={<Protected><EmergencyDashboard /></Protected>} />
+              <Route path="/portal" element={<PatientLayout><PatientHome /></PatientLayout>} />
+              <Route path="/portal/book" element={<PatientLayout><BookAppointment /></PatientLayout>} />
+              <Route path="/portal/reports" element={<PatientLayout><PatientReports /></PatientLayout>} />
+              <Route path="/portal/history" element={<PatientLayout><PatientHistory /></PatientLayout>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
