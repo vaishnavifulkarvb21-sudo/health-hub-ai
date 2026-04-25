@@ -10,6 +10,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIdleLogout } from "@/hooks/useIdleLogout";
 import { Badge } from "@/components/ui/badge";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { NotificationBell } from "./NotificationBell";
+import { EmergencyButton } from "./EmergencyButton";
+import { AIFloatingChat } from "./AIFloatingChat";
 
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   const { theme, toggle } = useTheme();
@@ -38,6 +41,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
               <Badge variant="secondary" className="hidden sm:inline-flex">
                 {role === "admin" ? t("header.admin") : t("header.staff")}
               </Badge>
+              <NotificationBell />
               <LanguageSwitcher />
               <Button variant="ghost" size="icon" onClick={toggle} aria-label={t("header.toggleTheme")}>
                 {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -49,6 +53,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
           </header>
           <main className="flex-1 p-4 md:p-6 animate-fade-in">{children}</main>
         </div>
+        <EmergencyButton />
+        <AIFloatingChat />
       </div>
     </SidebarProvider>
   );
