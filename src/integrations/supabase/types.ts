@@ -57,6 +57,7 @@ export type Database = {
           patient_id: string
           reason: string | null
           scheduled_at: string
+          slot_id: string | null
           status: string
           updated_at: string
         }
@@ -69,6 +70,7 @@ export type Database = {
           patient_id: string
           reason?: string | null
           scheduled_at: string
+          slot_id?: string | null
           status?: string
           updated_at?: string
         }
@@ -81,6 +83,7 @@ export type Database = {
           patient_id?: string
           reason?: string | null
           scheduled_at?: string
+          slot_id?: string | null
           status?: string
           updated_at?: string
         }
@@ -134,6 +137,45 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_requests: {
+        Row: {
+          created_at: string
+          handled_by: string | null
+          id: string
+          message: string | null
+          patient_id: string | null
+          patient_name: string
+          patient_phone: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          handled_by?: string | null
+          id?: string
+          message?: string | null
+          patient_id?: string | null
+          patient_name: string
+          patient_phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          handled_by?: string | null
+          id?: string
+          message?: string | null
+          patient_id?: string | null
+          patient_name?: string
+          patient_phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       lab_reports: {
         Row: {
           created_at: string
@@ -143,6 +185,7 @@ export type Database = {
           id: string
           notes: string | null
           patient_id: string
+          status: string
           title: string
         }
         Insert: {
@@ -153,6 +196,7 @@ export type Database = {
           id?: string
           notes?: string | null
           patient_id: string
+          status?: string
           title: string
         }
         Update: {
@@ -163,6 +207,7 @@ export type Database = {
           id?: string
           notes?: string | null
           patient_id?: string
+          status?: string
           title?: string
         }
         Relationships: [
@@ -175,6 +220,39 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          link: string | null
+          message: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          message?: string | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          message?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       patients: {
         Row: {
           address: string | null
@@ -183,12 +261,14 @@ export type Database = {
           created_by: string | null
           disease: string | null
           doctor_id: string | null
+          email: string | null
           gender: string
           id: string
           name: string
           patient_code: string
           phone: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           address?: string | null
@@ -197,12 +277,14 @@ export type Database = {
           created_by?: string | null
           disease?: string | null
           doctor_id?: string | null
+          email?: string | null
           gender: string
           id?: string
           name: string
           patient_code: string
           phone?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           address?: string | null
@@ -211,12 +293,14 @@ export type Database = {
           created_by?: string | null
           disease?: string | null
           doctor_id?: string | null
+          email?: string | null
           gender?: string
           id?: string
           name?: string
           patient_code?: string
           phone?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -269,6 +353,30 @@ export type Database = {
           },
         ]
       }
+      phone_otp: {
+        Row: {
+          attempts: number
+          code: string
+          created_at: string
+          expires_at: string
+          phone: string
+        }
+        Insert: {
+          attempts?: number
+          code: string
+          created_at?: string
+          expires_at: string
+          phone: string
+        }
+        Update: {
+          attempts?: number
+          code?: string
+          created_at?: string
+          expires_at?: string
+          phone?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -287,6 +395,36 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+        }
+        Relationships: []
+      }
+      time_slots: {
+        Row: {
+          appointment_id: string | null
+          created_at: string
+          doctor_id: string | null
+          ends_at: string
+          id: string
+          is_booked: boolean
+          starts_at: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          created_at?: string
+          doctor_id?: string | null
+          ends_at: string
+          id?: string
+          is_booked?: boolean
+          starts_at: string
+        }
+        Update: {
+          appointment_id?: string | null
+          created_at?: string
+          doctor_id?: string | null
+          ends_at?: string
+          id?: string
+          is_booked?: boolean
+          starts_at?: string
         }
         Relationships: []
       }
@@ -369,7 +507,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "doctor" | "staff" | "patient"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -497,7 +635,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "doctor", "staff", "patient"],
     },
   },
 } as const
