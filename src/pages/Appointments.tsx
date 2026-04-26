@@ -165,7 +165,9 @@ export default function Appointments() {
                         </Button>
                       </>
                     )}
-                    <Button variant="ghost" size="icon" onClick={() => remove(a)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    {(perms.isAdmin || perms.isDoctor || perms.isLegacyUser) && (
+                      <Button variant="ghost" size="icon" onClick={() => remove(a)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
