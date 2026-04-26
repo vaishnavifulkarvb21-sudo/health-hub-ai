@@ -21,6 +21,7 @@ interface Patient { id: string; name: string; patient_code: string; age: number;
 const empty = { patient_id: "", visit_date: new Date().toISOString().slice(0, 10), symptoms: "", diagnosis: "", prescription: "", doctor_name: "" };
 
 export default function Visits() {
+  const perms = usePermissions();
   const [visits, setVisits] = useState<Visit[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [open, setOpen] = useState(false);
