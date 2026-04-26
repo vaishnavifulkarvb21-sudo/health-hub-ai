@@ -21,6 +21,7 @@ interface Patient { id: string; name: string; patient_code: string; phone: strin
 const empty = { patient_id: "", amount: 0, description: "", status: "unpaid", bill_date: new Date().toISOString().slice(0, 10) };
 
 export default function Payments() {
+  const perms = usePermissions();
   const [items, setItems] = useState<Payment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [open, setOpen] = useState(false);
