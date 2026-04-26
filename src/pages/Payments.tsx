@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLog";
 import { exportCsv } from "@/lib/exportCsv";
 import { downloadInvoicePdf } from "@/lib/invoicePdf";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Payment { id: string; patient_id: string; amount: number; description: string | null; status: string; bill_date: string; }
 interface Patient { id: string; name: string; patient_code: string; phone: string | null; address: string | null; }
@@ -20,6 +21,7 @@ interface Patient { id: string; name: string; patient_code: string; phone: strin
 const empty = { patient_id: "", amount: 0, description: "", status: "unpaid", bill_date: new Date().toISOString().slice(0, 10) };
 
 export default function Payments() {
+  const perms = usePermissions();
   const [items, setItems] = useState<Payment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [open, setOpen] = useState(false);
@@ -163,7 +165,9 @@ export default function Payments() {
                     <Button variant="ghost" size="icon" onClick={() => downloadInvoice(p)} title="Download invoice"><FileDown className="h-4 w-4 text-primary" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => togglePaid(p)} title="Toggle paid"><CheckCircle2 className="h-4 w-4 text-success" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => { setEditing(p); setForm({ patient_id: p.patient_id, amount: Number(p.amount), description: p.description || "", status: p.status, bill_date: p.bill_date }); setOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    {perms.canDeletePayment && (
+                      <Button variant="ghost" size="icon" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

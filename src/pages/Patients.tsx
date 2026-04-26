@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLog";
 import { exportCsv } from "@/lib/exportCsv";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Patient {
   id: string;
@@ -30,6 +31,7 @@ interface DoctorLite { id: string; name: string; }
 const empty = { patient_code: "", name: "", age: 0, gender: "Male", phone: "", address: "", disease: "", doctor_id: "" };
 
 export default function Patients() {
+  const perms = usePermissions();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [doctors, setDoctors] = useState<DoctorLite[]>([]);
   const [search, setSearch] = useState("");
@@ -140,7 +142,9 @@ export default function Patients() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExport}><Download className="h-4 w-4 mr-2" /> Export CSV</Button>
-          <Button onClick={openNew} className="bg-gradient-primary"><Plus className="h-4 w-4 mr-2" /> Add patient</Button>
+          {perms.canCreatePatient && (
+            <Button onClick={openNew} className="bg-gradient-primary"><Plus className="h-4 w-4 mr-2" /> Add patient</Button>
+          )}
         </div>
       </div>
 
@@ -191,8 +195,12 @@ export default function Patients() {
                   <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{p.disease}</TableCell>
                   <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">{dname(p.doctor_id)}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    {perms.canEditPatient && (
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
+                    )}
+                    {perms.canDeletePatient && (
+                      <Button variant="ghost" size="icon" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

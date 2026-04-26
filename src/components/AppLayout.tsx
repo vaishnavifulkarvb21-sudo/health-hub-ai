@@ -24,6 +24,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
     return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("common.loading")}</div>;
   }
   if (!user) return <Navigate to="/auth" replace />;
+  // Patients must use the patient portal, not clinic-side pages.
+  if (role === "patient") return <Navigate to="/portal" replace />;
 
   return (
     <SidebarProvider>
@@ -38,8 +40,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="hidden sm:inline-flex">
-                {role === "admin" ? t("header.admin") : t("header.staff")}
+              <Badge variant="secondary" className="hidden sm:inline-flex capitalize">
+                {role ?? t("header.staff")}
               </Badge>
               <NotificationBell />
               <LanguageSwitcher />

@@ -10,11 +10,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLog";
 import { exportCsv } from "@/lib/exportCsv";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Report { id: string; patient_id: string; title: string; file_path: string; file_type: string | null; created_at: string; }
 interface Patient { id: string; name: string; patient_code: string; }
 
 export default function Reports() {
+  const perms = usePermissions();
   const [reports, setReports] = useState<Report[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [open, setOpen] = useState(false);
@@ -128,7 +130,9 @@ export default function Reports() {
               </div>
               <div className="flex gap-2 mt-3">
                 <Button size="sm" variant="outline" className="flex-1" onClick={() => download(r.file_path)}><Download className="h-3 w-3 mr-1" /> Open</Button>
-                <Button size="sm" variant="ghost" onClick={() => remove(r)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                {perms.canDeleteReport && (
+                  <Button size="sm" variant="ghost" onClick={() => remove(r)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                )}
               </div>
             </Card>
           ))}

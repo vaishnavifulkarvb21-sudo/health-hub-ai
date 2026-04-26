@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLog";
 import { format, parseISO } from "date-fns";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Appointment {
   id: string;
@@ -35,6 +36,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function Appointments() {
+  const perms = usePermissions();
   const [items, setItems] = useState<Appointment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -163,7 +165,9 @@ export default function Appointments() {
                         </Button>
                       </>
                     )}
-                    <Button variant="ghost" size="icon" onClick={() => remove(a)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    {(perms.isAdmin || perms.isDoctor || perms.isLegacyUser) && (
+                      <Button variant="ghost" size="icon" onClick={() => remove(a)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

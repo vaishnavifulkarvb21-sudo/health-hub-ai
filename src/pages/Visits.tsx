@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLog";
 import { downloadInvoicePdf } from "@/lib/invoicePdf";
 import { suggestFromSymptoms } from "@/lib/symptomRules";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Visit { id: string; patient_id: string; visit_date: string; symptoms: string | null; diagnosis: string | null; prescription: string | null; doctor_name: string | null; }
 interface Patient { id: string; name: string; patient_code: string; age: number; phone: string | null; address: string | null; }
@@ -20,6 +21,7 @@ interface Patient { id: string; name: string; patient_code: string; age: number;
 const empty = { patient_id: "", visit_date: new Date().toISOString().slice(0, 10), symptoms: "", diagnosis: "", prescription: "", doctor_name: "" };
 
 export default function Visits() {
+  const perms = usePermissions();
   const [visits, setVisits] = useState<Visit[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [open, setOpen] = useState(false);
@@ -144,7 +146,9 @@ export default function Visits() {
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => downloadVisitInvoice(v)} title="Invoice"><FileDown className="h-4 w-4 text-primary" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => { setEditing(v); setForm({ patient_id: v.patient_id, visit_date: v.visit_date, symptoms: v.symptoms || "", diagnosis: v.diagnosis || "", prescription: v.prescription || "", doctor_name: v.doctor_name || "" }); setAiSuggestion(""); setOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => remove(v)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    {perms.canDeleteVisit && (
+                      <Button variant="ghost" size="icon" onClick={() => remove(v)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

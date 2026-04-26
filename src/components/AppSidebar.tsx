@@ -16,14 +16,14 @@ export function AppSidebar() {
 
   const items = [
     { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard, show: true },
-    { title: t("nav.patients"), url: "/patients", icon: Users, show: true },
-    { title: t("nav.appointments"), url: "/appointments", icon: Calendar, show: true },
-    { title: t("nav.visits"), url: "/visits", icon: Stethoscope, show: true },
+    { title: t("nav.patients"), url: "/patients", icon: Users, show: perms.isAdmin || perms.isDoctor || perms.isStaff || perms.isLegacyUser },
+    { title: t("nav.appointments"), url: "/appointments", icon: Calendar, show: perms.isAdmin || perms.isDoctor || perms.isStaff || perms.isLegacyUser },
+    { title: t("nav.visits"), url: "/visits", icon: Stethoscope, show: perms.isAdmin || perms.isDoctor || perms.isLegacyUser },
     { title: t("nav.doctors"), url: "/doctors", icon: UserCog, show: perms.canManageDoctors },
-    { title: t("nav.reports"), url: "/reports", icon: FlaskConical, show: true },
-    { title: t("nav.payments"), url: "/payments", icon: Receipt, show: !perms.isStaff },
-    { title: t("nav.history"), url: "/history", icon: History, show: true },
-    { title: t("nav.ai"), url: "/ai", icon: Bot, show: true },
+    { title: t("nav.reports"), url: "/reports", icon: FlaskConical, show: perms.isAdmin || perms.isDoctor || perms.isLegacyUser },
+    { title: t("nav.payments"), url: "/payments", icon: Receipt, show: perms.isAdmin || perms.isLegacyUser },
+    { title: t("nav.history"), url: "/history", icon: History, show: perms.isAdmin || perms.isDoctor || perms.isLegacyUser },
+    { title: t("nav.ai"), url: "/ai", icon: Bot, show: perms.isClinicSide },
     { title: t("nav.emergency"), url: "/emergency", icon: AlertTriangle, show: perms.canHandleEmergency },
     { title: t("nav.activity"), url: "/activity", icon: ScrollText, show: perms.canViewActivityLog },
   ].filter((i) => i.show);
