@@ -146,7 +146,9 @@ export default function Visits() {
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => downloadVisitInvoice(v)} title="Invoice"><FileDown className="h-4 w-4 text-primary" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => { setEditing(v); setForm({ patient_id: v.patient_id, visit_date: v.visit_date, symptoms: v.symptoms || "", diagnosis: v.diagnosis || "", prescription: v.prescription || "", doctor_name: v.doctor_name || "" }); setAiSuggestion(""); setOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => remove(v)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    {perms.canDeleteVisit && (
+                      <Button variant="ghost" size="icon" onClick={() => remove(v)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
