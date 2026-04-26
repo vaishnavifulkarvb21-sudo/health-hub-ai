@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLog";
 import { exportCsv } from "@/lib/exportCsv";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Patient {
   id: string;
