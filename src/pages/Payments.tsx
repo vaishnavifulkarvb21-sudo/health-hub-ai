@@ -165,7 +165,9 @@ export default function Payments() {
                     <Button variant="ghost" size="icon" onClick={() => downloadInvoice(p)} title="Download invoice"><FileDown className="h-4 w-4 text-primary" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => togglePaid(p)} title="Toggle paid"><CheckCircle2 className="h-4 w-4 text-success" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => { setEditing(p); setForm({ patient_id: p.patient_id, amount: Number(p.amount), description: p.description || "", status: p.status, bill_date: p.bill_date }); setOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    {perms.canDeletePayment && (
+                      <Button variant="ghost" size="icon" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
