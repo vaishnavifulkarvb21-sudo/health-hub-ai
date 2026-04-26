@@ -31,6 +31,7 @@ interface DoctorLite { id: string; name: string; }
 const empty = { patient_code: "", name: "", age: 0, gender: "Male", phone: "", address: "", disease: "", doctor_id: "" };
 
 export default function Patients() {
+  const perms = usePermissions();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [doctors, setDoctors] = useState<DoctorLite[]>([]);
   const [search, setSearch] = useState("");
