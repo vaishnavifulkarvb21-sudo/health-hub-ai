@@ -193,8 +193,12 @@ export default function Patients() {
                   <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{p.disease}</TableCell>
                   <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">{dname(p.doctor_id)}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    {perms.canEditPatient && (
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
+                    )}
+                    {perms.canDeletePatient && (
+                      <Button variant="ghost" size="icon" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
