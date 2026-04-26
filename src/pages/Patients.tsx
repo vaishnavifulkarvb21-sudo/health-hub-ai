@@ -142,7 +142,9 @@ export default function Patients() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExport}><Download className="h-4 w-4 mr-2" /> Export CSV</Button>
-          <Button onClick={openNew} className="bg-gradient-primary"><Plus className="h-4 w-4 mr-2" /> Add patient</Button>
+          {perms.canCreatePatient && (
+            <Button onClick={openNew} className="bg-gradient-primary"><Plus className="h-4 w-4 mr-2" /> Add patient</Button>
+          )}
         </div>
       </div>
 
