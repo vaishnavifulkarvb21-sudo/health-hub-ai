@@ -16,6 +16,7 @@ interface Report { id: string; patient_id: string; title: string; file_path: str
 interface Patient { id: string; name: string; patient_code: string; }
 
 export default function Reports() {
+  const perms = usePermissions();
   const [reports, setReports] = useState<Report[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [open, setOpen] = useState(false);
