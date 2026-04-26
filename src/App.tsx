@@ -27,6 +27,7 @@ import BookAppointment from "./pages/portal/BookAppointment";
 import PatientReports from "./pages/portal/PatientReports";
 import PatientHistory from "./pages/portal/PatientHistory";
 import NotFound from "./pages/NotFound";
+import { RequireRole } from "./components/RequireRole";
 
 const queryClient = new QueryClient();
 
@@ -45,16 +46,16 @@ const App = () => (
               <Route path="/patient-auth" element={<PatientAuth />} />
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
-              <Route path="/patients" element={<Protected><Patients /></Protected>} />
-              <Route path="/appointments" element={<Protected><Appointments /></Protected>} />
-              <Route path="/visits" element={<Protected><Visits /></Protected>} />
-              <Route path="/doctors" element={<Protected><Doctors /></Protected>} />
-              <Route path="/payments" element={<Protected><Payments /></Protected>} />
-              <Route path="/reports" element={<Protected><Reports /></Protected>} />
-              <Route path="/history" element={<Protected><History /></Protected>} />
-              <Route path="/ai" element={<Protected><AIAssistant /></Protected>} />
-              <Route path="/activity" element={<Protected><ActivityLog /></Protected>} />
-              <Route path="/emergency" element={<Protected><EmergencyDashboard /></Protected>} />
+              <Route path="/patients" element={<Protected><RequireRole allow={["admin","doctor","staff","user"]}><Patients /></RequireRole></Protected>} />
+              <Route path="/appointments" element={<Protected><RequireRole allow={["admin","doctor","staff","user"]}><Appointments /></RequireRole></Protected>} />
+              <Route path="/visits" element={<Protected><RequireRole allow={["admin","doctor","user"]}><Visits /></RequireRole></Protected>} />
+              <Route path="/doctors" element={<Protected><RequireRole allow={["admin","user"]}><Doctors /></RequireRole></Protected>} />
+              <Route path="/payments" element={<Protected><RequireRole allow={["admin","user"]}><Payments /></RequireRole></Protected>} />
+              <Route path="/reports" element={<Protected><RequireRole allow={["admin","doctor","user"]}><Reports /></RequireRole></Protected>} />
+              <Route path="/history" element={<Protected><RequireRole allow={["admin","doctor","user"]}><History /></RequireRole></Protected>} />
+              <Route path="/ai" element={<Protected><RequireRole allow={["admin","doctor","staff","user"]}><AIAssistant /></RequireRole></Protected>} />
+              <Route path="/activity" element={<Protected><RequireRole allow={["admin"]}><ActivityLog /></RequireRole></Protected>} />
+              <Route path="/emergency" element={<Protected><RequireRole allow={["admin","doctor","user"]}><EmergencyDashboard /></RequireRole></Protected>} />
               <Route path="/portal" element={<PatientLayout><PatientHome /></PatientLayout>} />
               <Route path="/portal/book" element={<PatientLayout><BookAppointment /></PatientLayout>} />
               <Route path="/portal/reports" element={<PatientLayout><PatientReports /></PatientLayout>} />
