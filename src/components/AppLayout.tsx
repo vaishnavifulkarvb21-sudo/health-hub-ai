@@ -40,8 +40,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="hidden sm:inline-flex">
-                {role === "admin" ? t("header.admin") : t("header.staff")}
+              <Badge variant="secondary" className="hidden sm:inline-flex capitalize">
+                {role ?? t("header.staff")}
               </Badge>
               <NotificationBell />
               <LanguageSwitcher />
