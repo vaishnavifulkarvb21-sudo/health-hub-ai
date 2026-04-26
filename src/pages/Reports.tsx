@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLog";
 import { exportCsv } from "@/lib/exportCsv";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Report { id: string; patient_id: string; title: string; file_path: string; file_type: string | null; created_at: string; }
 interface Patient { id: string; name: string; patient_code: string; }
