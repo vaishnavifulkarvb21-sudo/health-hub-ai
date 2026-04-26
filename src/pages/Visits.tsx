@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLog";
 import { downloadInvoicePdf } from "@/lib/invoicePdf";
 import { suggestFromSymptoms } from "@/lib/symptomRules";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Visit { id: string; patient_id: string; visit_date: string; symptoms: string | null; diagnosis: string | null; prescription: string | null; doctor_name: string | null; }
 interface Patient { id: string; name: string; patient_code: string; age: number; phone: string | null; address: string | null; }
