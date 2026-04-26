@@ -36,6 +36,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function Appointments() {
+  const perms = usePermissions();
   const [items, setItems] = useState<Appointment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
