@@ -114,6 +114,7 @@ export type Database = {
           name: string
           specialization: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           contact?: string | null
@@ -124,6 +125,7 @@ export type Database = {
           name: string
           specialization?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           contact?: string | null
@@ -134,6 +136,7 @@ export type Database = {
           name?: string
           specialization?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -505,6 +508,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_assigned_doctor: { Args: { _patient_id: string }; Returns: boolean }
+      is_clinic_staff: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user" | "doctor" | "staff" | "patient"
