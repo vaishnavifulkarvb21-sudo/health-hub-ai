@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLog";
 import { format, parseISO } from "date-fns";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Appointment {
   id: string;
