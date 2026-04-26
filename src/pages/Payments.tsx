@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLog";
 import { exportCsv } from "@/lib/exportCsv";
 import { downloadInvoicePdf } from "@/lib/invoicePdf";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Payment { id: string; patient_id: string; amount: number; description: string | null; status: string; bill_date: string; }
 interface Patient { id: string; name: string; patient_code: string; phone: string | null; address: string | null; }
