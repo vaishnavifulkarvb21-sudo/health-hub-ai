@@ -107,10 +107,10 @@ export default function AuthPage() {
                 <div className="pt-2 border-t">
                   <p className="text-xs text-muted-foreground mb-2">Try demo accounts:</p>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={() => fillDemo("admin")}>Admin demo</Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => fillDemo("user")}>User demo</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => fillDemo("admin")}>👨‍⚕️ Admin demo</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => fillDemo("patient")}>🧑 Patient demo</Button>
                   </div>
-                  <p className="text-[11px] text-muted-foreground mt-2">admin@demo.com / admin123 · user@demo.com / user123</p>
+                  <p className="text-[11px] text-muted-foreground mt-2">admin@demo.com / admin123 · patient@demo.com / patient123</p>
                 </div>
               </form>
             </TabsContent>
