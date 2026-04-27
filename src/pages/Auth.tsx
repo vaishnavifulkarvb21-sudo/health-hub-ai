@@ -40,11 +40,11 @@ export default function AuthPage() {
     else toast.success("Account created — you can sign in now.");
   };
 
-  const fillDemo = (type: "admin" | "user") => {
+  const fillDemo = (type: "admin" | "patient") => {
     setSignInData(
       type === "admin"
         ? { email: "admin@demo.com", password: "admin123" }
-        : { email: "user@demo.com", password: "user123" }
+        : { email: "patient@demo.com", password: "patient123" }
     );
   };
 
