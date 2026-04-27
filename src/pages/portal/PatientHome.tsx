@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, FileText, History, ArrowRight, Heart, Activity } from "lucide-react";
+import { Calendar, FileText, History, ArrowRight, Heart, Activity, ClipboardList, User, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "react-i18next";
@@ -91,30 +91,62 @@ export default function PatientHome() {
         </Link>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-3">
-        <Link to="/portal/reports">
-          <Card className="p-5 hover:shadow-elegant transition-smooth cursor-pointer hover:-translate-y-0.5">
+      <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
+        <Link to="/portal/appointments">
+          <Card className="p-5 hover:shadow-elegant transition-smooth cursor-pointer hover:-translate-y-0.5 h-full">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-semibold flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> {t("portal.nav.reports")}</div>
-                <div className="text-xs text-muted-foreground mt-1">{t("portal.reportsPage.subtitle")}</div>
+                <div className="font-semibold flex items-center gap-2"><ClipboardList className="h-4 w-4 text-primary" /> My Appointments</div>
+                <div className="text-xs text-muted-foreground mt-1">View, cancel or reschedule</div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </Card>
+        </Link>
+        <Link to="/portal/reports">
+          <Card className="p-5 hover:shadow-elegant transition-smooth cursor-pointer hover:-translate-y-0.5 h-full">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-semibold flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> Lab Reports</div>
+                <div className="text-xs text-muted-foreground mt-1">Download results</div>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground" />
             </div>
           </Card>
         </Link>
         <Link to="/portal/history">
-          <Card className="p-5 hover:shadow-elegant transition-smooth cursor-pointer hover:-translate-y-0.5">
+          <Card className="p-5 hover:shadow-elegant transition-smooth cursor-pointer hover:-translate-y-0.5 h-full">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-semibold flex items-center gap-2"><Activity className="h-4 w-4 text-primary" /> {t("portal.nav.history")}</div>
-                <div className="text-xs text-muted-foreground mt-1">{t("portal.historyPage.subtitle")}</div>
+                <div className="font-semibold flex items-center gap-2"><Activity className="h-4 w-4 text-primary" /> Medical History</div>
+                <div className="text-xs text-muted-foreground mt-1">Visits, payments, timeline</div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </Card>
+        </Link>
+        <Link to="/portal/profile">
+          <Card className="p-5 hover:shadow-elegant transition-smooth cursor-pointer hover:-translate-y-0.5 h-full">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-semibold flex items-center gap-2"><User className="h-4 w-4 text-primary" /> My Profile</div>
+                <div className="text-xs text-muted-foreground mt-1">Update your details</div>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground" />
             </div>
           </Card>
         </Link>
       </div>
+
+      <Card className="p-5 bg-gradient-primary text-primary-foreground">
+        <div className="flex items-center gap-3">
+          <Sparkles className="h-8 w-8 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold">AI Health Assistant</div>
+            <div className="text-xs opacity-90 mt-0.5">Use the chat bubble at the bottom-right to ask health questions or check symptoms.</div>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }

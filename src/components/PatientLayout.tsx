@@ -3,7 +3,7 @@ import { Navigate, useNavigate, NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Moon, Sun, LogOut, Heart, Calendar, FileText, History, Home } from "lucide-react";
+import { Moon, Sun, LogOut, Heart, Calendar, FileText, History, Home, ClipboardList, User } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { useIdleLogout } from "@/hooks/useIdleLogout";
@@ -24,10 +24,12 @@ export function PatientLayout({ children }: { children: ReactNode }) {
   if (role && role !== "patient") return <Navigate to="/dashboard" replace />;
 
   const items = [
-    { to: "/portal", icon: Home, label: t("portal.nav.home") },
-    { to: "/portal/book", icon: Calendar, label: t("portal.nav.book") },
-    { to: "/portal/reports", icon: FileText, label: t("portal.nav.reports") },
-    { to: "/portal/history", icon: History, label: t("portal.nav.history") },
+    { to: "/portal", icon: Home, label: "Home" },
+    { to: "/portal/book", icon: Calendar, label: "Book" },
+    { to: "/portal/appointments", icon: ClipboardList, label: "Appointments" },
+    { to: "/portal/reports", icon: FileText, label: "Reports" },
+    { to: "/portal/history", icon: History, label: "History" },
+    { to: "/portal/profile", icon: User, label: "Profile" },
   ];
 
   return (
