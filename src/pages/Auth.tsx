@@ -11,13 +11,15 @@ import { toast } from "sonner";
 import logo from "/medpulse-logo.png";
 
 export default function AuthPage() {
-  const { user, signIn, signUp, loading } = useAuth();
+  const { user, role, signIn, signUp, loading } = useAuth();
   const [showPwd, setShowPwd] = useState(false);
   const [busy, setBusy] = useState(false);
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [signUpData, setSignUpData] = useState({ email: "", password: "", fullName: "" });
 
-  if (!loading && user) return <Navigate to="/dashboard" replace />;
+  if (!loading && user) {
+    return <Navigate to={role === "patient" ? "/portal" : "/dashboard"} replace />;
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
