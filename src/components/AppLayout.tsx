@@ -43,8 +43,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="hidden sm:inline-flex capitalize">
-                {role ?? t("header.staff")}
+              <Badge className="hidden sm:inline-flex gap-1 bg-primary text-primary-foreground hover:bg-primary/90">
+                <ShieldCheck className="h-3 w-3" /> {displayRole}
               </Badge>
               <NotificationBell />
               <LanguageSwitcher />
