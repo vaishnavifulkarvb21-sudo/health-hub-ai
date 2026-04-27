@@ -26,6 +26,8 @@ import PatientHome from "./pages/portal/PatientHome";
 import BookAppointment from "./pages/portal/BookAppointment";
 import PatientReports from "./pages/portal/PatientReports";
 import PatientHistory from "./pages/portal/PatientHistory";
+import MyAppointments from "./pages/portal/MyAppointments";
+import PatientProfile from "./pages/portal/PatientProfile";
 import NotFound from "./pages/NotFound";
 import { RequireRole } from "./components/RequireRole";
 
@@ -60,6 +62,8 @@ const App = () => (
               <Route path="/portal/book" element={<PatientLayout><BookAppointment /></PatientLayout>} />
               <Route path="/portal/reports" element={<PatientLayout><PatientReports /></PatientLayout>} />
               <Route path="/portal/history" element={<PatientLayout><PatientHistory /></PatientLayout>} />
+              <Route path="/portal/appointments" element={<PatientLayout><MyAppointments /></PatientLayout>} />
+              <Route path="/portal/profile" element={<PatientLayout><PatientProfile /></PatientLayout>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
