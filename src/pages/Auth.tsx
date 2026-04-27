@@ -134,7 +134,7 @@ export default function AuthPage() {
                     </button>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">New accounts are created as Doctor / Staff. Only an admin can grant admin access.</p>
+                <p className="text-xs text-muted-foreground">New accounts default to clinic Admin access. Patients should sign in via the Patient Portal.</p>
                 <Button type="submit" className="w-full bg-gradient-primary hover:opacity-90" disabled={busy}>
                   {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Create account
                 </Button>
