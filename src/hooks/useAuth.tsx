@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Auto-create demo accounts if missing
     const demos: Record<string, { password: string; fullName: string; role: Role }> = {
       "admin@demo.com": { password: "admin123", fullName: "Demo Admin", role: "admin" },
-      "user@demo.com": { password: "user123", fullName: "Demo User", role: "user" },
+      "patient@demo.com": { password: "patient123", fullName: "Demo Patient", role: "patient" },
     };
     const demo = demos[email.toLowerCase()];
 
@@ -65,9 +65,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!signUpErr) {
         const retry = await supabase.auth.signInWithPassword({ email, password });
         error = retry.error;
-        if (!retry.error && demo.role === "admin" && retry.data.user) {
-          // Promote to admin
-          await supabase.from("user_roles").upsert({ user_id: retry.data.user.id, role: "admin" });
+        if (!retry.error && retry.data.user) {
+          // Promote the demo account to its proper role
+          await supabase.from("user_roles").upsert({ user_id: retry.data.user.id, role: demo.role });
+          // For the patient demo, also create a linked patient record so the portal has data to show
+          if (demo.role === "patient") {
+            const { data: existing } = await supabase
+              .from("patients").select("id").eq("user_id", retry.data.user.id).maybeSingle();
+            if (!existing) {
+              await supabase.from("patients").insert({
+                user_id: retry.data.user.id,
+                name: demo.fullName,
+                age: 30,
+                gender: "other",
+                email,
+                patient_code: `DEMO-${Math.floor(1000 + Math.random() * 9000)}`,
+              });
+            }
+          }
         }
       }
     }

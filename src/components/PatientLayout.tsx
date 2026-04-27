@@ -38,7 +38,7 @@ export function PatientLayout({ children }: { children: ReactNode }) {
             <img src={logo} alt="MedPulse AI logo" className="h-full w-full object-contain" />
           </div>
           <div className="font-semibold text-sm hidden sm:block">MedPulse AI</div>
-          <Badge variant="secondary" className="hidden sm:inline-flex"><Heart className="h-3 w-3 mr-1" /> {t("portal.title")}</Badge>
+          <Badge className="hidden sm:inline-flex bg-primary text-primary-foreground hover:bg-primary/90"><Heart className="h-3 w-3 mr-1" /> Patient</Badge>
         </div>
         <div className="flex items-center gap-2">
           <NotificationBell />

@@ -11,13 +11,15 @@ import { toast } from "sonner";
 import logo from "/medpulse-logo.png";
 
 export default function AuthPage() {
-  const { user, signIn, signUp, loading } = useAuth();
+  const { user, role, signIn, signUp, loading } = useAuth();
   const [showPwd, setShowPwd] = useState(false);
   const [busy, setBusy] = useState(false);
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [signUpData, setSignUpData] = useState({ email: "", password: "", fullName: "" });
 
-  if (!loading && user) return <Navigate to="/dashboard" replace />;
+  if (!loading && user) {
+    return <Navigate to={role === "patient" ? "/portal" : "/dashboard"} replace />;
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,11 +40,11 @@ export default function AuthPage() {
     else toast.success("Account created — you can sign in now.");
   };
 
-  const fillDemo = (type: "admin" | "user") => {
+  const fillDemo = (type: "admin" | "patient") => {
     setSignInData(
       type === "admin"
         ? { email: "admin@demo.com", password: "admin123" }
-        : { email: "user@demo.com", password: "user123" }
+        : { email: "patient@demo.com", password: "patient123" }
     );
   };
 
@@ -105,10 +107,10 @@ export default function AuthPage() {
                 <div className="pt-2 border-t">
                   <p className="text-xs text-muted-foreground mb-2">Try demo accounts:</p>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={() => fillDemo("admin")}>Admin demo</Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => fillDemo("user")}>User demo</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => fillDemo("admin")}>👨‍⚕️ Admin demo</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => fillDemo("patient")}>🧑 Patient demo</Button>
                   </div>
-                  <p className="text-[11px] text-muted-foreground mt-2">admin@demo.com / admin123 · user@demo.com / user123</p>
+                  <p className="text-[11px] text-muted-foreground mt-2">admin@demo.com / admin123 · patient@demo.com / patient123</p>
                 </div>
               </form>
             </TabsContent>
@@ -132,7 +134,7 @@ export default function AuthPage() {
                     </button>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">New accounts are created as Doctor / Staff. Only an admin can grant admin access.</p>
+                <p className="text-xs text-muted-foreground">New accounts default to clinic Admin access. Patients should sign in via the Patient Portal.</p>
                 <Button type="submit" className="w-full bg-gradient-primary hover:opacity-90" disabled={busy}>
                   {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Create account
                 </Button>
