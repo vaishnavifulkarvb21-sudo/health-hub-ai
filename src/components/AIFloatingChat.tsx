@@ -29,36 +29,63 @@ export function AIFloatingChat() {
     setMessages(next);
     setInput("");
     setBusy(true);
+    // Add empty assistant message we'll stream into
+    setMessages([...next, { role: "assistant", content: "" }]);
     try {
-      const { data, error } = await supabase.functions.invoke("ai-chat", { body: { messages: next } });
-      if (error) throw error;
-      // Streaming response — for simplicity, read as text
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/ai-chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ messages: next }),
+      });
+      if (res.status === 429) throw new Error("Too many requests. Please wait a moment.");
+      if (res.status === 402) throw new Error("AI credits exhausted. Please contact support.");
+      if (!res.ok || !res.body) throw new Error("AI service unavailable");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
       let reply = "";
-      if (data instanceof ReadableStream) {
-        const reader = data.getReader();
-        const decoder = new TextDecoder();
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value);
-          const lines = chunk.split("\n").filter((l) => l.startsWith("data: "));
-          for (const line of lines) {
-            const payload = line.slice(6);
-            if (payload === "[DONE]") continue;
-            try {
-              const json = JSON.parse(payload);
-              const delta = json.choices?.[0]?.delta?.content;
-              if (delta) reply += delta;
-            } catch {}
-          }
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith("data:")) continue;
+          const payload = trimmed.slice(5).trim();
+          if (payload === "[DONE]") continue;
+          try {
+            const json = JSON.parse(payload);
+            const delta = json.choices?.[0]?.delta?.content;
+            if (delta) {
+              reply += delta;
+              setMessages((prev) => {
+                const copy = [...prev];
+                copy[copy.length - 1] = { role: "assistant", content: reply };
+                return copy;
+              });
+            }
+          } catch {}
         }
-      } else if (typeof data === "string") {
-        reply = data;
-      } else {
-        reply = data?.content || data?.message || "Sorry, I couldn't generate a reply.";
       }
-      setMessages([...next, { role: "assistant", content: reply || "(no response)" }]);
+      if (!reply) {
+        setMessages((prev) => {
+          const copy = [...prev];
+          copy[copy.length - 1] = { role: "assistant", content: "(no response)" };
+          return copy;
+        });
+      }
     } catch (e: any) {
+      setMessages((prev) => prev.slice(0, -1));
       toast.error(e.message || "AI request failed");
     } finally {
       setBusy(false);
