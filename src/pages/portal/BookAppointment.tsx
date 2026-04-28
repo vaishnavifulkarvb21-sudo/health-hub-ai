@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Calendar, Loader2, Stethoscope, Clock, CheckCircle2, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 import { format, parseISO, addDays, startOfDay } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
@@ -38,7 +37,6 @@ const VISIT_TYPES = [
 ];
 
 export default function BookAppointment() {
-  useTranslation();
   const navigate = useNavigate();
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
