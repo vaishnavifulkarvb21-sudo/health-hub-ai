@@ -10,6 +10,7 @@ import { useIdleLogout } from "@/hooks/useIdleLogout";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { NotificationBell } from "./NotificationBell";
 import { EmergencyButton } from "./EmergencyButton";
+import { AIFloatingChat } from "./AIFloatingChat";
 import logo from "/medpulse-logo.png";
 
 export function PatientLayout({ children }: { children: ReactNode }) {
