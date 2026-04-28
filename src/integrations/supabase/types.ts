@@ -501,6 +501,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      book_patient_appointment: {
+        Args: { _reason?: string; _slot_id: string; _visit_type?: string }
+        Returns: string
+      }
+      get_or_create_doctor_day_slots: {
+        Args: { _doctor_id: string; _slot_date: string }
+        Returns: {
+          doctor_id: string
+          ends_at: string
+          id: string
+          is_booked: boolean
+          starts_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
