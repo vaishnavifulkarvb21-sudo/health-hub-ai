@@ -79,6 +79,7 @@ export function PatientLayout({ children }: { children: ReactNode }) {
 
       <main className="flex-1 p-4 md:p-6 max-w-5xl w-full mx-auto animate-fade-in">{children}</main>
       <EmergencyButton />
+      <AIFloatingChat />
     </div>
   );
 }
