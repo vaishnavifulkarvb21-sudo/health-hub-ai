@@ -76,6 +76,49 @@ export default function BookAppointment() {
       .then(({ data }) => setDoctors(data || []));
   }, []);
 
+  // Load availability counts for ALL doctors on the chosen date (for the doctor cards)
+  useEffect(() => {
+    if (doctors.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const start = new Date(date + "T00:00:00").toISOString();
+      const end = new Date(date + "T23:59:59").toISOString();
+      const { data } = await supabase
+        .from("time_slots")
+        .select("doctor_id, starts_at, is_booked")
+        .gte("starts_at", start)
+        .lte("starts_at", end);
+      if (cancelled) return;
+      const now = Date.now();
+      const counts: Record<string, number> = {};
+      // Default: assume 16 future slots if none generated yet (we auto-generate 16 per doctor/day from 9am)
+      doctors.forEach((d) => {
+        const base = new Date(date + "T09:00:00").getTime();
+        let presumed = 0;
+        for (let i = 0; i < 16; i++) {
+          if (base + i * 30 * 60 * 1000 > now) presumed++;
+        }
+        counts[d.id] = presumed;
+      });
+      // Override with real data per doctor when slots exist
+      const byDoctor: Record<string, { total: number; freeFuture: number }> = {};
+      (data || []).forEach((s: any) => {
+        const t = new Date(s.starts_at).getTime();
+        const entry = byDoctor[s.doctor_id] || { total: 0, freeFuture: 0 };
+        entry.total++;
+        if (!s.is_booked && t > now) entry.freeFuture++;
+        byDoctor[s.doctor_id] = entry;
+      });
+      Object.entries(byDoctor).forEach(([dId, e]) => {
+        if (e.total > 0) counts[dId] = e.freeFuture;
+      });
+      setDoctorAvailability(counts);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [doctors, date, slots]);
+
   const selectedDoctor = doctors.find((d) => d.id === doctorId);
 
   const fetchSlots = useCallback(async () => {
