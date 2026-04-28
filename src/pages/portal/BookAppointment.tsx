@@ -11,7 +11,7 @@ import { Calendar, Loader2, Stethoscope, Clock, CheckCircle2, ChevronLeft, Chevr
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { format, parseISO, addDays } from "date-fns";
+import { format, parseISO, addDays, startOfDay } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 interface Doctor {
@@ -151,64 +151,22 @@ export default function BookAppointment() {
     if (!chosenSlot) return toast.error("Please choose a time slot");
     setBusy(true);
 
-    const { data: pat } = await supabase.from("patients").select("id").eq("user_id", user?.id).maybeSingle();
-    if (!pat) {
-      setBusy(false);
-      return toast.error("Patient profile not found. Please contact support.");
-    }
-
     const slot = slots.find((s) => s.id === chosenSlot);
     if (!slot) {
       setBusy(false);
       return;
     }
 
-    // Re-check slot availability to prevent double-booking
-    const { data: fresh } = await supabase.from("time_slots").select("is_booked").eq("id", chosenSlot).maybeSingle();
-    if (fresh?.is_booked) {
-      setBusy(false);
-      toast.error("This slot was just booked. Please pick another.");
-      fetchSlots();
-      return;
-    }
-
-    const reasonText = reason
-      ? `${VISIT_TYPES.find((v) => v.value === visitType)?.label}: ${reason}`
-      : VISIT_TYPES.find((v) => v.value === visitType)?.label || null;
-
-    const { data: appt, error } = await supabase
-      .from("appointments")
-      .insert({
-        patient_id: pat.id,
-        doctor_id: doctorId,
-        scheduled_at: slot.starts_at,
-        reason: reasonText,
-        slot_id: chosenSlot,
-        created_by: user?.id ?? null,
-      })
-      .select("id")
-      .single();
+    const { error } = await (supabase as any).rpc("book_patient_appointment", {
+      _slot_id: chosenSlot,
+      _visit_type: VISIT_TYPES.find((v) => v.value === visitType)?.label || visitType,
+      _reason: reason || null,
+    });
     if (error) {
       setBusy(false);
-      return toast.error(error.message);
-    }
-
-    await supabase.from("time_slots").update({ is_booked: true, appointment_id: appt.id }).eq("id", chosenSlot);
-
-    // Notify clinic staff
-    const { data: staffRoles } = await supabase
-      .from("user_roles")
-      .select("user_id")
-      .in("role", ["admin", "doctor", "user"]);
-    if (staffRoles?.length) {
-      const notifs = staffRoles.map((r) => ({
-        user_id: r.user_id,
-        title: "New appointment booked",
-        message: `${selectedDoctor?.name || "Doctor"} · ${format(parseISO(slot.starts_at), "PPp")}`,
-        link: "/appointments",
-        type: "appointment",
-      }));
-      await supabase.from("notifications").insert(notifs);
+      toast.error(error.message || "Could not book this appointment");
+      fetchSlots();
+      return;
     }
 
     setBusy(false);
