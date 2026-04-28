@@ -9,11 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Calendar, Loader2, Stethoscope, Clock, CheckCircle2, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { format, parseISO, addDays, isToday, isPast, startOfDay } from "date-fns";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface Doctor {
   id: string;
@@ -39,7 +38,6 @@ const VISIT_TYPES = [
 ];
 
 export default function BookAppointment() {
-  const { user } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
