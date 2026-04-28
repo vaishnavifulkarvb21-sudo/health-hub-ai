@@ -53,6 +53,7 @@ export default function BookAppointment() {
   const [busy, setBusy] = useState(false);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [confirmation, setConfirmation] = useState<{ slot: Slot; doctor?: Doctor } | null>(null);
+  const [doctorAvailability, setDoctorAvailability] = useState<Record<string, number>>({});
 
   const today = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
   const maxDate = useMemo(() => format(addDays(new Date(), 60), "yyyy-MM-dd"), []);
