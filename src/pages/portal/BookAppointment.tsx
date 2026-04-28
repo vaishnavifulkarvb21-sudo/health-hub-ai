@@ -11,7 +11,7 @@ import { Calendar, Loader2, Stethoscope, Clock, CheckCircle2, ChevronLeft, Chevr
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { format, parseISO, addDays, isToday, isPast, startOfDay } from "date-fns";
+import { format, parseISO, addDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 interface Doctor {
@@ -38,7 +38,7 @@ const VISIT_TYPES = [
 ];
 
 export default function BookAppointment() {
-  const { t } = useTranslation();
+  useTranslation();
   const navigate = useNavigate();
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -125,15 +125,11 @@ export default function BookAppointment() {
       return;
     }
     setLoadingSlots(true);
-    const start = new Date(date + "T00:00:00").toISOString();
-    const end = new Date(date + "T23:59:59").toISOString();
-    const { data } = await supabase
-      .from("time_slots")
-      .select("*")
-      .eq("doctor_id", doctorId)
-      .gte("starts_at", start)
-      .lte("starts_at", end)
-      .order("starts_at");
+    const { data, error } = await (supabase as any).rpc("get_or_create_doctor_day_slots", {
+      _doctor_id: doctorId,
+      _slot_date: date,
+    });
+    if (error) toast.error(error.message || "Unable to load appointment slots");
     setSlots((data || []) as Slot[]);
     setLoadingSlots(false);
     setChosenSlot("");
@@ -142,42 +138,6 @@ export default function BookAppointment() {
   useEffect(() => {
     fetchSlots();
   }, [fetchSlots]);
-
-  // Generate default slots once if none exist for that doctor/day (and date isn't past)
-  useEffect(() => {
-    if (loadingSlots || !doctorId) return;
-    if (slots.length > 0) return;
-    if (isPast(startOfDay(new Date(date + "T00:00:00"))) && !isToday(new Date(date + "T00:00:00"))) return;
-
-    let cancelled = false;
-    (async () => {
-      // Re-check (avoids race / duplicate inserts)
-      const start = new Date(date + "T00:00:00").toISOString();
-      const end = new Date(date + "T23:59:59").toISOString();
-      const { data: existing } = await supabase
-        .from("time_slots")
-        .select("id")
-        .eq("doctor_id", doctorId)
-        .gte("starts_at", start)
-        .lte("starts_at", end)
-        .limit(1);
-      if (cancelled || (existing && existing.length > 0)) {
-        if (existing && existing.length > 0) fetchSlots();
-        return;
-      }
-      const base = new Date(date + "T09:00:00");
-      const newSlots = Array.from({ length: 16 }).map((_, i) => {
-        const s = new Date(base.getTime() + i * 30 * 60 * 1000);
-        const e = new Date(s.getTime() + 30 * 60 * 1000);
-        return { doctor_id: doctorId, starts_at: s.toISOString(), ends_at: e.toISOString() };
-      });
-      await supabase.from("time_slots").insert(newSlots);
-      if (!cancelled) fetchSlots();
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [slots.length, doctorId, date, loadingSlots, fetchSlots]);
 
   const visibleSlots = useMemo(() => {
     const now = Date.now();
