@@ -53,6 +53,7 @@ export default function BookAppointment() {
   const [busy, setBusy] = useState(false);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [confirmation, setConfirmation] = useState<{ slot: Slot; doctor?: Doctor } | null>(null);
+  const [doctorAvailability, setDoctorAvailability] = useState<Record<string, number>>({});
 
   const today = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
   const maxDate = useMemo(() => format(addDays(new Date(), 60), "yyyy-MM-dd"), []);
@@ -74,6 +75,49 @@ export default function BookAppointment() {
       .order("name")
       .then(({ data }) => setDoctors(data || []));
   }, []);
+
+  // Load availability counts for ALL doctors on the chosen date (for the doctor cards)
+  useEffect(() => {
+    if (doctors.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const start = new Date(date + "T00:00:00").toISOString();
+      const end = new Date(date + "T23:59:59").toISOString();
+      const { data } = await supabase
+        .from("time_slots")
+        .select("doctor_id, starts_at, is_booked")
+        .gte("starts_at", start)
+        .lte("starts_at", end);
+      if (cancelled) return;
+      const now = Date.now();
+      const counts: Record<string, number> = {};
+      // Default: assume 16 future slots if none generated yet (we auto-generate 16 per doctor/day from 9am)
+      doctors.forEach((d) => {
+        const base = new Date(date + "T09:00:00").getTime();
+        let presumed = 0;
+        for (let i = 0; i < 16; i++) {
+          if (base + i * 30 * 60 * 1000 > now) presumed++;
+        }
+        counts[d.id] = presumed;
+      });
+      // Override with real data per doctor when slots exist
+      const byDoctor: Record<string, { total: number; freeFuture: number }> = {};
+      (data || []).forEach((s: any) => {
+        const t = new Date(s.starts_at).getTime();
+        const entry = byDoctor[s.doctor_id] || { total: 0, freeFuture: 0 };
+        entry.total++;
+        if (!s.is_booked && t > now) entry.freeFuture++;
+        byDoctor[s.doctor_id] = entry;
+      });
+      Object.entries(byDoctor).forEach(([dId, e]) => {
+        if (e.total > 0) counts[dId] = e.freeFuture;
+      });
+      setDoctorAvailability(counts);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [doctors, date, slots]);
 
   const selectedDoctor = doctors.find((d) => d.id === doctorId);
 
@@ -249,8 +293,24 @@ export default function BookAppointment() {
                     <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                       <Stethoscope className="h-5 w-5" />
                     </div>
-                    <div className="min-w-0">
-                      <div className="font-medium truncate">{d.name}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="font-medium truncate">{d.name}</div>
+                        {(() => {
+                          const free = doctorAvailability[d.id] ?? 0;
+                          if (free === 0)
+                            return (
+                              <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30 shrink-0 text-[10px]">
+                                Full
+                              </Badge>
+                            );
+                          return (
+                            <Badge variant="outline" className="bg-success/10 text-success border-success/30 shrink-0 text-[10px]">
+                              <Clock className="h-2.5 w-2.5 mr-0.5" /> {free} free
+                            </Badge>
+                          );
+                        })()}
+                      </div>
                       <div className="text-xs text-muted-foreground truncate">
                         {d.specialization || "General Physician"}
                       </div>

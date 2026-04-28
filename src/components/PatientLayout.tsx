@@ -10,6 +10,7 @@ import { useIdleLogout } from "@/hooks/useIdleLogout";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { NotificationBell } from "./NotificationBell";
 import { EmergencyButton } from "./EmergencyButton";
+import { AIFloatingChat } from "./AIFloatingChat";
 import logo from "/medpulse-logo.png";
 
 export function PatientLayout({ children }: { children: ReactNode }) {
@@ -78,6 +79,7 @@ export function PatientLayout({ children }: { children: ReactNode }) {
 
       <main className="flex-1 p-4 md:p-6 max-w-5xl w-full mx-auto animate-fade-in">{children}</main>
       <EmergencyButton />
+      <AIFloatingChat />
     </div>
   );
 }
