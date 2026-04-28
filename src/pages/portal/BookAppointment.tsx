@@ -293,8 +293,24 @@ export default function BookAppointment() {
                     <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                       <Stethoscope className="h-5 w-5" />
                     </div>
-                    <div className="min-w-0">
-                      <div className="font-medium truncate">{d.name}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="font-medium truncate">{d.name}</div>
+                        {(() => {
+                          const free = doctorAvailability[d.id] ?? 0;
+                          if (free === 0)
+                            return (
+                              <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30 shrink-0 text-[10px]">
+                                Full
+                              </Badge>
+                            );
+                          return (
+                            <Badge variant="outline" className="bg-success/10 text-success border-success/30 shrink-0 text-[10px]">
+                              <Clock className="h-2.5 w-2.5 mr-0.5" /> {free} free
+                            </Badge>
+                          );
+                        })()}
+                      </div>
                       <div className="text-xs text-muted-foreground truncate">
                         {d.specialization || "General Physician"}
                       </div>
